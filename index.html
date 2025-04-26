@@ -42,8 +42,20 @@
   <input type="text" id="dateInput" placeholder="例如：0822">
   <button onclick="calculateSaleDate()">查詢開賣時間</button>
   <h3 id="result"></h3>
+  <h3 id="todayInfo"></h3>
 
   <script>
+    // 顯示今天開賣的是哪天的票
+    function showTodaySale() {
+      const today = new Date();
+      const visit = new Date(today);
+      visit.setDate(visit.getDate() + 93);
+      const visitDate = visit.toLocaleDateString('zh-TW', {
+        year: 'numeric', month: '2-digit', day: '2-digit'
+      });
+      document.getElementById('todayInfo').innerText = `🎟️ 今天 ${today.toLocaleDateString('zh-TW')} 23:00 開賣的是：${visitDate} 的票`;
+    }
+
     function calculateSaleDate() {
       const input = document.getElementById('dateInput').value.trim();
       const result = document.getElementById('result');
@@ -85,6 +97,9 @@
       result.innerText = `開賣時間：${saleDate} 23:00（台灣時間）`;
       result.style.color = '#007BFF';
     }
+
+    // 初始化載入時顯示今日開賣票
+    window.onload = showTodaySale;
   </script>
 </body>
 </html>
