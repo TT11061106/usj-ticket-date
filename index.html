@@ -88,7 +88,7 @@
   <div id="countdown"></div>
   <h3 id="todayInfo"></h3>
 
-  <!-- 🔗 新增的功能按鈕區 -->
+  <!-- 🔗 新增功能按鈕 -->
   <a class="tool-btn btn-purple" href="https://vocus.cc/wo/67b3d439fd8978000122bb24" target="_blank">
     📘 官網購票教學
   </a>
@@ -150,9 +150,10 @@
         visitDate.setFullYear(year + 1);
       }
 
+      // 🛠 這裡修正：減 92 天，不是93天
       const saleDate = new Date(visitDate.getTime());
-      saleDate.setDate(saleDate.getDate() - 93);
-      saleDate.setHours(23, 0, 0, 0); // 設定成晚上23點
+      saleDate.setDate(saleDate.getDate() - 92);
+      saleDate.setHours(23, 0, 0, 0); // 設定為晚上23:00
 
       const saleDateStr = saleDate.toLocaleDateString('zh-TW', {
         year: 'numeric',
