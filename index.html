@@ -16,19 +16,37 @@
       font-size: 1.5rem;
       margin-bottom: 1rem;
     }
-    input, button {
+    input, button, a.tool-btn {
       font-size: 1.2rem;
       padding: 0.5rem;
       margin-top: 0.5rem;
       width: 100%;
       box-sizing: border-box;
+      text-align: center;
+      display: inline-block;
     }
     button {
       background-color: #007BFF;
       color: white;
       border: none;
-      margin-top: 1rem;
       cursor: pointer;
+      border-radius: 4px;
+    }
+    a.tool-btn {
+      text-decoration: none;
+      border: none;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    .btn-purple {
+      background-color: #d6c5f0;
+      color: #5a429b;
+      margin-top: 1rem;
+    }
+    .btn-pink {
+      background-color: #fcd3e1;
+      color: #b0356b;
+      margin-top: 0.75rem;
     }
     h3 {
       margin-top: 1.5rem;
@@ -38,27 +56,38 @@
     #result.error {
       color: red;
     }
+    #daysLeft {
+      margin-top: 0.5rem;
+      color: #555;
+      font-size: 1rem;
+    }
+    #countdown {
+      margin-top: 1rem;
+      font-size: 1.1rem;
+      color: #d63384;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
   <h2>🎢 USJ 門票開賣查詢小工具</h2>
   <p>請輸入入園日期（格式：MMDD，例如0822）</p>
-  <input type="text" id="dateInput" placeholder="例如：0822" maxlength="4">
+  <input type="text" id="dateInput" placeholder="例如：0822" maxlength="4" inputmode="numeric">
   <button onclick="calculateSaleDate()">查詢開賣時間</button>
   <h3 id="result"></h3>
+  <div id="daysLeft"></div>
+  <div id="countdown"></div>
   <h3 id="todayInfo"></h3>
 
-  <script>
-    function showTodaySale() {
-      const today = new Date();
-      const visit = new Date(today);
-      visit.setDate(visit.getDate() + 93);
-      const visitDate = visit.toLocaleDateString('zh-TW', {
-        year: 'numeric', month: '2-digit', day: '2-digit'
-      });
-      document.getElementById('todayInfo').innerText = `🎟️ 今天 ${today.toLocaleDateString('zh-TW')} 23:00 開賣的是：${visitDate} 的票`;
-    }
+  <!-- 🔗 新增的功能按鈕區 -->
+  <a class="tool-btn btn-purple" href="https://vocus.cc/wo/67b3d439fd8978000122bb24" target="_blank">
+    📘 官網購票教學
+  </a>
+  <a class="tool-btn btn-pink" href="https://portaly.cc/tt_official" target="_blank">
+    🤝 代訂 / 刷卡失敗協助
+  </a>
 
+  <script>
     function isLeapYear(year) {
       return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
     }
@@ -75,7 +104,9 @@
       const inputField = document.getElementById('dateInput');
       const input = inputField.value.trim();
       const result = document.getElementById('result');
+      const daysLeft = document.getElementById('daysLeft');
       result.classList.remove('error');
+      daysLeft.innerText = '';
 
       if (!/^\d{4}$/.test(input)) {
         result.innerText = '請輸入4位數字（例如0822）';
@@ -89,15 +120,11 @@
 
       let visitDate = new Date(year, month - 1, day);
 
-      // 特別處理 2/29
-      if (month === 2 && day === 29) {
-        if (!isLeapYear(year)) {
-          year = findNextLeapYear(year);
-          visitDate = new Date(year, 1, 29);
-        }
+      if (month === 2 && day === 29 && !isLeapYear(year)) {
+        year = findNextLeapYear(year);
+        visitDate = new Date(year, 1, 29);
       }
 
-      // 檢查日期是否合法（防呆，防止 0431 這種錯誤）
       if (visitDate.getMonth() + 1 !== month || visitDate.getDate() !== day) {
         result.innerText = '輸入的日期不存在，請確認月份與天數';
         result.classList.add('error');
@@ -105,23 +132,74 @@
       }
 
       const today = new Date();
-      const todayWithoutTime = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
-      if (visitDate < todayWithoutTime) {
+      if (visitDate < todayDateOnly) {
         visitDate.setFullYear(year + 1);
       }
 
-      visitDate.setDate(visitDate.getDate() - 93);
-      const saleDate = visitDate.toLocaleDateString('zh-TW', {
+      const saleDate = new Date(visitDate);
+      saleDate.setDate(saleDate.getDate() - 93);
+
+      const saleDateStr = saleDate.toLocaleDateString('zh-TW', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit'
       });
 
-      result.innerText = `開賣時間：${saleDate} 23:00（台灣時間）`;
+      result.innerText = `開賣時間：${saleDateStr} 23:00（台灣時間）`;
+
+      const diffTime = saleDate.getTime() - todayDateOnly.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      daysLeft.innerText =
+        diffDays > 0 ? `📅 離開賣還有 ${diffDays} 天`
+        : diffDays === 0 ? `📅 今天就是開賣日！`
+        : `📅 已經開賣囉！`;
+
+      inputField.value = '';
     }
 
-    window.onload = showTodaySale;
+    function showTodaySale() {
+      const today = new Date();
+      const visit = new Date(today);
+      visit.setDate(visit.getDate() + 93);
+      const visitDate = visit.toLocaleDateString('zh-TW', {
+        year: 'numeric', month: '2-digit', day: '2-digit'
+      });
+      document.getElementById('todayInfo').innerText =
+        `🎟️ 今天 ${today.toLocaleDateString('zh-TW')} 23:00 開賣的是：${visitDate} 的票`;
+    }
+
+    function startCountdownTo2300() {
+      const countdownEl = document.getElementById('countdown');
+
+      function updateCountdown() {
+        const now = new Date();
+        const today2300 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 0, 0);
+
+        let diff = today2300 - now;
+        if (diff < 0) {
+          countdownEl.innerText = '⏳ 今天的 23:00 已過囉，等明天吧！';
+          return;
+        }
+
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        diff %= (1000 * 60 * 60);
+        const minutes = Math.floor(diff / (1000 * 60));
+        diff %= (1000 * 60);
+        const seconds = Math.floor(diff / 1000);
+
+        countdownEl.innerText = `⏳ 距離今晚 23:00 還有 ${hours} 小時 ${minutes} 分 ${seconds} 秒`;
+      }
+
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+    }
+
+    window.onload = function () {
+      showTodaySale();
+      startCountdownTo2300();
+    };
   </script>
 </body>
 </html>
