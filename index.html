@@ -2,14 +2,46 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>USJ 門票開賣計算器</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      margin: 0;
+      background-color: #f8f9fa;
+      color: #333;
+    }
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    input, button {
+      font-size: 1.2rem;
+      padding: 0.5rem;
+      margin-top: 0.5rem;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      margin-top: 1rem;
+    }
+    h3 {
+      margin-top: 1.5rem;
+      color: #007BFF;
+      font-size: 1.2rem;
+    }
+  </style>
 </head>
-<body style="font-family: Arial, sans-serif; padding: 20px;">
+<body>
   <h2>🎢 USJ 門票開賣查詢小工具</h2>
   <p>請輸入入園日期（格式：MMDD，例如0822）</p>
   <input type="text" id="dateInput" placeholder="例如：0822">
   <button onclick="calculateSaleDate()">查詢開賣時間</button>
-  <h3 id="result" style="margin-top:20px;color:#007BFF;"></h3>
+  <h3 id="result"></h3>
 
   <script>
     function calculateSaleDate() {
