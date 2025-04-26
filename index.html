@@ -88,6 +88,7 @@
   <div id="countdown"></div>
   <h3 id="todayInfo"></h3>
 
+  <!-- 🔗 功能按鈕 -->
   <a class="tool-btn btn-purple" href="https://vocus.cc/wo/67b3d439fd8978000122bb24" target="_blank">
     📘 官網購票教學
   </a>
@@ -148,8 +149,8 @@
         visitDate.setFullYear(year + 1);
       }
 
-      // 🚀 正確寫法！直接用 timestamp 減 93 天
-      const saleDate = new Date(visitDate.getTime() - 93 * 24 * 60 * 60 * 1000);
+      // 🚨 正確寫法：減94天
+      const saleDate = new Date(visitDate.getTime() - 94 * 24 * 60 * 60 * 1000);
       saleDate.setHours(23, 0, 0, 0);
 
       const saleDateStr = saleDate.toLocaleDateString('zh-TW', {
@@ -172,14 +173,16 @@
     }
 
     function showTodaySale() {
-      const today = new Date();
-      const visit = new Date(today);
-      visit.setDate(visit.getDate() + 93);
-      const visitDate = visit.toLocaleDateString('zh-TW', {
-        year: 'numeric', month: '2-digit', day: '2-digit'
+      const now = new Date();
+      const visit = new Date(now.getTime() + 94 * 24 * 60 * 60 * 1000); // 加94天
+      const visitDateStr = visit.toLocaleDateString('zh-TW', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
       });
+
       document.getElementById('todayInfo').innerText =
-        `🎟️ 今天 ${today.toLocaleDateString('zh-TW')} 23:00 開賣的是：${visitDate} 的票`;
+        `🎟️ 今天 ${now.toLocaleDateString('zh-TW')} 23:00 開賣的是：${visitDateStr} 的票`;
     }
 
     function startCountdownTo2300() {
