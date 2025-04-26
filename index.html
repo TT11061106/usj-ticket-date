@@ -55,6 +55,7 @@
     }
     #result.error {
       color: red;
+      animation: shake 0.3s;
     }
     #daysLeft {
       margin-top: 0.5rem;
@@ -67,8 +68,16 @@
       color: #d63384;
       font-weight: bold;
     }
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
   </style>
 </head>
+
 <body>
   <h2>🎢 USJ 門票開賣查詢小工具</h2>
   <p>請輸入入園日期（格式：MMDD，例如0822）</p>
@@ -102,11 +111,14 @@
 
     function calculateSaleDate() {
       const inputField = document.getElementById('dateInput');
-      const input = inputField.value.trim();
+      let input = inputField.value.trim();
       const result = document.getElementById('result');
       const daysLeft = document.getElementById('daysLeft');
       result.classList.remove('error');
       daysLeft.innerText = '';
+
+      // 自動移除非數字
+      input = input.replace(/\D/g, '');
 
       if (!/^\d{4}$/.test(input)) {
         result.innerText = '請輸入4位數字（例如0822）';
@@ -138,8 +150,9 @@
         visitDate.setFullYear(year + 1);
       }
 
-      const saleDate = new Date(visitDate);
+      const saleDate = new Date(visitDate.getTime());
       saleDate.setDate(saleDate.getDate() - 93);
+      saleDate.setHours(23, 0, 0, 0); // 設定成晚上23點
 
       const saleDateStr = saleDate.toLocaleDateString('zh-TW', {
         year: 'numeric',
@@ -149,7 +162,7 @@
 
       result.innerText = `開賣時間：${saleDateStr} 23:00（台灣時間）`;
 
-      const diffTime = saleDate.getTime() - todayDateOnly.getTime();
+      const diffTime = saleDate.getTime() - today.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       daysLeft.innerText =
         diffDays > 0 ? `📅 離開賣還有 ${diffDays} 天`
@@ -157,6 +170,7 @@
         : `📅 已經開賣囉！`;
 
       inputField.value = '';
+      inputField.focus();
     }
 
     function showTodaySale() {
