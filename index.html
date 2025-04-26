@@ -28,24 +28,27 @@
       color: white;
       border: none;
       margin-top: 1rem;
+      cursor: pointer;
     }
     h3 {
       margin-top: 1.5rem;
       color: #007BFF;
       font-size: 1.2rem;
     }
+    #result.error {
+      color: red;
+    }
   </style>
 </head>
 <body>
   <h2>🎢 USJ 門票開賣查詢小工具</h2>
   <p>請輸入入園日期（格式：MMDD，例如0822）</p>
-  <input type="text" id="dateInput" placeholder="例如：0822">
+  <input type="text" id="dateInput" placeholder="例如：0822" maxlength="4">
   <button onclick="calculateSaleDate()">查詢開賣時間</button>
   <h3 id="result"></h3>
   <h3 id="todayInfo"></h3>
 
   <script>
-    // 顯示今天開賣的是哪天的票
     function showTodaySale() {
       const today = new Date();
       const visit = new Date(today);
@@ -56,34 +59,55 @@
       document.getElementById('todayInfo').innerText = `🎟️ 今天 ${today.toLocaleDateString('zh-TW')} 23:00 開賣的是：${visitDate} 的票`;
     }
 
+    function isLeapYear(year) {
+      return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+    }
+
+    function findNextLeapYear(fromYear) {
+      let year = fromYear + 1;
+      while (!isLeapYear(year)) {
+        year++;
+      }
+      return year;
+    }
+
     function calculateSaleDate() {
-      const input = document.getElementById('dateInput').value.trim();
+      const inputField = document.getElementById('dateInput');
+      const input = inputField.value.trim();
       const result = document.getElementById('result');
-      result.style.color = '#007BFF';
+      result.classList.remove('error');
 
-      if (!/^[0-9]{4}$/.test(input)) {
+      if (!/^\d{4}$/.test(input)) {
         result.innerText = '請輸入4位數字（例如0822）';
-        result.style.color = 'red';
+        result.classList.add('error');
         return;
       }
 
-      const month = parseInt(input.substring(0, 2), 10);
-      const day = parseInt(input.substring(2, 4), 10);
+      let month = parseInt(input.substring(0, 2), 10);
+      let day = parseInt(input.substring(2, 4), 10);
+      let year = new Date().getFullYear();
 
-      const year = new Date().getFullYear();
-      const testDate = new Date(year, month - 1, day);
-      if (
-        testDate.getMonth() + 1 !== month ||
-        testDate.getDate() !== day
-      ) {
+      let visitDate = new Date(year, month - 1, day);
+
+      // 特別處理 2/29
+      if (month === 2 && day === 29) {
+        if (!isLeapYear(year)) {
+          year = findNextLeapYear(year);
+          visitDate = new Date(year, 1, 29);
+        }
+      }
+
+      // 檢查日期是否合法（防呆，防止 0431 這種錯誤）
+      if (visitDate.getMonth() + 1 !== month || visitDate.getDate() !== day) {
         result.innerText = '輸入的日期不存在，請確認月份與天數';
-        result.style.color = 'red';
+        result.classList.add('error');
         return;
       }
 
-      const visitDate = new Date(year, month - 1, day);
       const today = new Date();
-      if (visitDate < today) {
+      const todayWithoutTime = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+      if (visitDate < todayWithoutTime) {
         visitDate.setFullYear(year + 1);
       }
 
@@ -95,10 +119,8 @@
       });
 
       result.innerText = `開賣時間：${saleDate} 23:00（台灣時間）`;
-      result.style.color = '#007BFF';
     }
 
-    // 初始化載入時顯示今日開賣票
     window.onload = showTodaySale;
   </script>
 </body>
