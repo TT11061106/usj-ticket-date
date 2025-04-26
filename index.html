@@ -1,0 +1,38 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>USJ 門票開賣計算器</title>
+  <script>
+    function calculateSaleDate() {
+      const input = document.getElementById('dateInput').value.trim();
+      if (input.length !== 4 || isNaN(input)) {
+        document.getElementById('result').innerText = '請輸入4位數字 (例如0822)';
+        return;
+      }
+      const month = parseInt(input.substring(0, 2), 10);
+      const day = parseInt(input.substring(2, 4), 10);
+      const today = new Date();
+      const year = today.getFullYear();
+      const visitDate = new Date(year, month - 1, day);
+
+      if (visitDate < today) {
+        visitDate.setFullYear(year + 1);
+      }
+
+      visitDate.setDate(visitDate.getDate() - 93);
+
+      const saleDate = visitDate.toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' });
+      document.getElementById('result').innerText = `開賣時間：${saleDate} 23:00（台灣時間）`;
+    }
+  </script>
+</head>
+<body style="font-family: Arial, sans-serif; padding: 20px;">
+  <h2>🎢 USJ 門票開賣查詢小工具</h2>
+  <p>請輸入入園日期（格式：MMDD，例如0822）</p>
+  <input type="text" id="dateInput" placeholder="例如：0822">
+  <button onclick="calculateSaleDate()">查詢開賣時間</button>
+  <h3 id="result" style="margin-top:20px;color:#007BFF;"></h3>
+</body>
+</html>
