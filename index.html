@@ -1,220 +1,272 @@
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>USJ 門票開賣計算器</title>
+  <title>🎟️ USJ門票開賣查詢小工具</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      padding: 2rem;
+      font-family: 'Arial', '微軟正黑體', sans-serif;
+      background: linear-gradient(to bottom, #ffe6f0, #fff);
+      color: #cc3366;
       margin: 0;
-      background-color: #f8f9fa;
-      color: #333;
+      padding: 0;
+      text-align: center;
     }
-    h2 {
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
+    header {
+      background-color: #ffb6c1;
+      padding: 2rem 1rem;
+      border-bottom-left-radius: 30px;
+      border-bottom-right-radius: 30px;
+    }
+    header h1 {
+      font-size: 2rem;
+      margin: 0;
+      color: #fff;
+      text-shadow: 1px 1px #d63384;
+    }
+    header p {
+      margin-top: 0.5rem;
+      font-size: 1.2rem;
+      color: #fff;
+    }
+    main {
+      padding: 2rem 1rem;
     }
     input, button, a.tool-btn {
       font-size: 1.2rem;
-      padding: 0.5rem;
-      margin-top: 0.5rem;
-      width: 100%;
+      padding: 0.7rem;
+      margin-top: 0.7rem;
+      width: 90%;
+      max-width: 400px;
+      border: none;
+      border-radius: 10px;
       box-sizing: border-box;
       text-align: center;
-      display: inline-block;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
     }
-    button {
-      background-color: #007BFF;
+    input {
+      border: 2px solid #ffb6c1;
+      background-color: #fff;
+    }
+    button, a.tool-btn {
+      background-color: #ff85a2;
       color: white;
-      border: none;
       cursor: pointer;
-      border-radius: 4px;
+      transition: transform 0.2s, background-color 0.2s;
     }
-    a.tool-btn {
-      text-decoration: none;
-      border: none;
-      border-radius: 4px;
-      font-weight: bold;
+    button:hover, a.tool-btn:hover {
+      transform: scale(1.05);
+      background-color: #e76f8f;
     }
-    .btn-purple {
-      background-color: #d6c5f0;
-      color: #5a429b;
-      margin-top: 1rem;
-    }
-    .btn-pink {
-      background-color: #fcd3e1;
-      color: #b0356b;
-      margin-top: 0.75rem;
-    }
-    h3 {
-      margin-top: 1.5rem;
-      color: #007BFF;
-      font-size: 1.2rem;
-    }
-    #result.error {
-      color: red;
-      animation: shake 0.3s;
-    }
-    #daysLeft {
-      margin-top: 0.5rem;
-      color: #555;
-      font-size: 1rem;
-    }
-    #countdown {
-      margin-top: 1rem;
-      font-size: 1.1rem;
+    .btn-calendar {
+      background-color: #ffc2d1;
       color: #d63384;
-      font-weight: bold;
+      margin-top: 1rem;
     }
-    @keyframes shake {
-      0% { transform: translateX(0); }
-      25% { transform: translateX(-5px); }
-      50% { transform: translateX(5px); }
-      75% { transform: translateX(-5px); }
-      100% { transform: translateX(0); }
+    #result, #daysLeft, #countdown, #calendarLinks, #helpLinks {
+      display: none;
+      margin-top: 1rem;
+    }
+    footer {
+      margin-top: 3rem;
+      padding: 1rem;
+      font-size: 0.9rem;
+      color: #aaa;
     }
   </style>
 </head>
-
 <body>
-  <h2>🎢 USJ 門票開賣查詢小工具</h2>
-  <p>請輸入入園日期（格式：MMDD，例如0822）</p>
-  <input type="text" id="dateInput" placeholder="例如：0822" maxlength="4" inputmode="numeric">
-  <button onclick="calculateSaleDate()">查詢開賣時間</button>
-  <h3 id="result"></h3>
-  <div id="daysLeft"></div>
-  <div id="countdown"></div>
-  <h3 id="todayInfo"></h3>
+  <header>
+    <h1>🎢 USJ門票開賣小工具 🎟️</h1>
+    <p>粉紅升級版・快速查詢・一鍵設提醒</p>
+  </header>
 
-  <!-- 🔗 功能按鈕 -->
-  <a class="tool-btn btn-purple" href="https://vocus.cc/wo/67b3d439fd8978000122bb24" target="_blank">
-    📘 官網購票教學
-  </a>
-  <a class="tool-btn btn-pink" href="https://portaly.cc/tt_official" target="_blank">
-    🤝 代訂 / 刷卡失敗協助
-  </a>
+  <main>
+    <p>請輸入入園日期（格式：MMDD，例如0822）</p>
+    <input type="text" id="dateInput" placeholder="例如：0822" maxlength="4" inputmode="numeric">
+    <button onclick="calculateSaleDate()">查詢開賣時間</button>
 
-  <script>
-    function isLeapYear(year) {
-      return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
-    }
+    <div id="result"></div>
+    <div id="daysLeft"></div>
+    <div id="countdown"></div>
+    <div id="calendarLinks" style="margin-top:1.5rem;"></div>
 
-    function findNextLeapYear(fromYear) {
-      let year = fromYear + 1;
-      while (!isLeapYear(year)) {
-        year++;
-      }
-      return year;
-    }
+    <div id="helpLinks" style="margin-top: 2rem;">
+      <a class="tool-btn btn-calendar" href="https://vocus.cc/wo/67b3d439fd8978000122bb24" target="_blank">
+        📘 官網購票教學
+      </a><br>
+      <p style="margin-top: 1rem; font-size: 1.1rem; font-weight: bold; color: #d63384;">代訂 / 刷卡失敗代付</p>
+      <a href="https://lin.ee/wLFxlop" target="_blank" style="display:inline-block;margin-top:0.5rem;">
+        <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="代訂/刷卡代付" height="50" style="border:0;">
+      </a>
+    </div>
+  </main>
 
-    function calculateSaleDate() {
-      const inputField = document.getElementById('dateInput');
-      let input = inputField.value.trim();
-      const result = document.getElementById('result');
-      const daysLeft = document.getElementById('daysLeft');
-      result.classList.remove('error');
-      daysLeft.innerText = '';
+  <footer>
+    © 2025 USJ小助手・設計 by TT 🎀
+  </footer>
 
-      input = input.replace(/\D/g, '');
+<script>
+function isLeapYear(year) {
+  return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+}
 
-      if (!/^\d{4}$/.test(input)) {
-        result.innerText = '請輸入4位數字（例如0822）';
-        result.classList.add('error');
-        return;
-      }
+function findNextLeapYear(fromYear) {
+  let year = fromYear + 1;
+  while (!isLeapYear(year)) {
+    year++;
+  }
+  return year;
+}
 
-      let month = parseInt(input.substring(0, 2), 10);
-      let day = parseInt(input.substring(2, 4), 10);
-      let year = new Date().getFullYear();
+function calculateSaleDate() {
+  const inputField = document.getElementById('dateInput');
+  let input = inputField.value.trim();
+  const result = document.getElementById('result');
+  const daysLeft = document.getElementById('daysLeft');
+  const calendarLinks = document.getElementById('calendarLinks');
+  const countdown = document.getElementById('countdown');
+  const helpLinks = document.getElementById('helpLinks');
 
-      let visitDate = new Date(year, month - 1, day);
+  input = input.replace(/\D/g, '');
 
-      if (month === 2 && day === 29 && !isLeapYear(year)) {
-        year = findNextLeapYear(year);
-        visitDate = new Date(year, 1, 29);
-      }
+  if (!/^\d{4}$/.test(input)) {
+    result.innerText = '請輸入4位數字（例如0822）';
+    result.style.display = 'block';
+    daysLeft.style.display = 'none';
+    countdown.style.display = 'none';
+    calendarLinks.style.display = 'none';
+    helpLinks.style.display = 'none';
+    return;
+  }
 
-      if (visitDate.getMonth() + 1 !== month || visitDate.getDate() !== day) {
-        result.innerText = '輸入的日期不存在，請確認月份與天數';
-        result.classList.add('error');
-        return;
-      }
+  let month = parseInt(input.substring(0, 2), 10);
+  let day = parseInt(input.substring(2, 4), 10);
+  let year = new Date().getFullYear();
 
-      const today = new Date();
-      const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  let visitDate = new Date(year, month - 1, day);
+  if (month === 2 && day === 29 && !isLeapYear(year)) {
+    year = findNextLeapYear(year);
+    visitDate = new Date(year, 1, 29);
+  }
 
-      if (visitDate < todayDateOnly) {
-        visitDate.setFullYear(year + 1);
-      }
+  if (visitDate.getMonth() + 1 !== month || visitDate.getDate() !== day) {
+    result.innerText = '輸入的日期不存在，請確認月份與天數';
+    result.style.display = 'block';
+    daysLeft.style.display = 'none';
+    countdown.style.display = 'none';
+    calendarLinks.style.display = 'none';
+    helpLinks.style.display = 'none';
+    return;
+  }
 
-      // 🚨 正確寫法：減94天
-      const saleDate = new Date(visitDate.getTime() - 94 * 24 * 60 * 60 * 1000);
-      saleDate.setHours(23, 0, 0, 0);
+  const today = new Date();
+  const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  if (visitDate < today) {
+    visitDate.setFullYear(today.getFullYear() + 1);
+  }
 
-      const saleDateStr = saleDate.toLocaleDateString('zh-TW', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-      });
+  const saleDate = new Date(visitDate.getTime() - 94 * 24 * 60 * 60 * 1000);
+  saleDate.setHours(23, 0, 0, 0);
 
-      result.innerText = `開賣時間：${saleDateStr} 23:00（台灣時間）`;
+  result.innerText = `🎟️ 開賣時間：${saleDate.toLocaleDateString('zh-TW')} 晚上23:00（台灣時間）`;
+  result.style.display = 'block';
+  helpLinks.style.display = 'block';
 
-      const diffTime = saleDate.getTime() - today.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      daysLeft.innerText =
-        diffDays > 0 ? `📅 離開賣還有 ${diffDays} 天`
-        : diffDays === 0 ? `📅 今天就是開賣日！`
-        : `📅 已經開賣囉！`;
+  const diffTime = saleDate.getTime() - todayDateOnly.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-      inputField.value = '';
-      inputField.focus();
-    }
+  if (diffDays > 0) {
+    createCalendarLinks(saleDate);
+    startCountdownTo2300();
+    updateDaysLeft(saleDate);
+  } else {
+    calendarLinks.style.display = 'none';
+    countdown.style.display = 'none';
+    daysLeft.innerText = `📅 已經開賣囉！`;
+    daysLeft.style.display = 'block';
+  }
+}
 
-    function showTodaySale() {
-      const now = new Date();
-      const visit = new Date(now.getTime() + 94 * 24 * 60 * 60 * 1000); // 加94天
-      const visitDateStr = visit.toLocaleDateString('zh-TW', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-      });
+function createCalendarLinks(saleDate) {
+  const calendarLinks = document.getElementById('calendarLinks');
+  calendarLinks.innerHTML = "";
 
-      document.getElementById('todayInfo').innerText =
-        `🎟️ 今天 ${now.toLocaleDateString('zh-TW')} 23:00 開賣的是：${visitDateStr} 的票`;
-    }
+  const yyyy = saleDate.getFullYear();
+  const mm = String(saleDate.getMonth() + 1).padStart(2, '0');
+  const dd = String(saleDate.getDate()).padStart(2, '0');
+  const utcHour = 15; // 台灣23:00對應UTC15:00
 
-    function startCountdownTo2300() {
-      const countdownEl = document.getElementById('countdown');
+  const startDateTime = `${yyyy}${mm}${dd}T${utcHour}0000Z`;
+  const endDateTime = `${yyyy}${mm}${dd}T${utcHour + 1}0000Z`;
 
-      function updateCountdown() {
-        const now = new Date();
-        const today2300 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 0, 0);
+  const googleCalUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=USJ+門票開賣&dates=${startDateTime}/${endDateTime}&details=記得搶票！&location=台灣&trp=true`;
 
-        let diff = today2300 - now;
-        if (diff < 0) {
-          countdownEl.innerText = '⏳ 今天的 23:00 已過囉，等明天吧！';
-          return;
-        }
+  const icsContent =
+`BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+SUMMARY:USJ門票開賣提醒
+DESCRIPTION:記得搶票！
+DTSTART:${startDateTime}
+DTEND:${endDateTime}
+LOCATION:台灣
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:USJ門票即將開賣
+END:VALARM
+END:VEVENT
+END:VCALENDAR`;
 
-        const hours = Math.floor(diff / (1000 * 60 * 60));
-        diff %= (1000 * 60 * 60);
-        const minutes = Math.floor(diff / (1000 * 60));
-        diff %= (1000 * 60);
-        const seconds = Math.floor(diff / 1000);
+  const blob = new Blob([icsContent], { type: 'text/calendar' });
+  const icsUrl = URL.createObjectURL(blob);
 
-        countdownEl.innerText = `⏳ 距離今晚 23:00 還有 ${hours} 小時 ${minutes} 分 ${seconds} 秒`;
-      }
+  const shareLineUrl = `https://line.me/R/msg/text/?USJ門票即將開賣！記得設好鬧鐘搶票～`;
 
-      updateCountdown();
-      setInterval(updateCountdown, 1000);
-    }
+  calendarLinks.innerHTML += `<a class="tool-btn btn-calendar" href="${googleCalUrl}" target="_blank">➕ 加到 Google 日曆</a><br>`;
+  calendarLinks.innerHTML += `<a class="tool-btn btn-calendar" href="${icsUrl}" download="USJ_ticket_sale_reminder.ics">➕ 加到 iPhone 日曆</a><br>`;
+  calendarLinks.innerHTML += `<a class="tool-btn btn-calendar" href="${shareLineUrl}" target="_blank">➕ 分享到 LINE 提醒自己</a>`;
+  calendarLinks.style.display = 'block';
+}
 
-    window.onload = function () {
-      showTodaySale();
-      startCountdownTo2300();
-    };
-  </script>
+function startCountdownTo2300() {
+  const countdown = document.getElementById('countdown');
+  countdown.style.display = 'block';
+
+  function updateCountdown() {
+    const now = new Date();
+    let target = new Date(now);
+    target.setHours(23, 0, 0, 0);
+    if (now > target) target.setDate(target.getDate() + 1);
+
+    const diff = target - now;
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+    countdown.innerText = `⏳ 距離今晚 23:00 還有 ${hours} 小時 ${minutes} 分 ${seconds} 秒`;
+  }
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+}
+
+function updateDaysLeft(saleDate) {
+  const daysLeft = document.getElementById('daysLeft');
+  daysLeft.style.display = 'block';
+
+  const today = new Date();
+  const diffTime = saleDate.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  daysLeft.innerText = (diffDays > 0) ? `📅 離開賣還有 ${diffDays} 天` :
+                     (diffDays === 0) ? `📅 今天就是開賣日！` :
+                     `📅 已經開賣囉！`;
+}
+</script>
 </body>
 </html>
